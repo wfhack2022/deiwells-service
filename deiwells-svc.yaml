@@ -1,0 +1,82 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: deiwellssvc-service
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      port: 5000
+  selector:
+    app: deiwellssvc-service
+  type: LoadBalancer
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: crawler
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      port: 8080
+  selector:
+    app: crawler
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deiwellssvc-service
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: deiwellssvc-service
+  template:
+    metadata:
+      labels:
+        app: deiwellssvc-service
+    spec:
+      containers:
+      - env:
+        - name: TOKEN
+          value: SET
+        - name: SEARCH_API_KEY
+          value: private-SET    
+        - name: GENDER_API_TOKEN
+          value: SET   
+        - name: SCRAPE_SERVICE_HOST
+          value: crawler                  
+        image: ragunathp/deiwellssvc:latest
+        imagePullPolicy: Always
+        name: deiwellssvc-service
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crawler
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: crawler
+  template:
+    metadata:
+      labels:
+        app: crawler
+    spec:
+      containers:
+      - env:               
+        image: ragunathp/crawler:latest
+        imagePullPolicy: Always
+        name: crawler
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+
+

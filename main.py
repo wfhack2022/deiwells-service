@@ -75,7 +75,6 @@ def get_all_companides_from_db():
             output_data.extend(res['results'])
             total_pages = res['meta']['page']['total_pages']
             print(total_pages)
-            print(len(output_data))
             count=2
             while(count < total_pages):
                 res=app_search.list_documents(engine_name=DEIWELLS_ENGINE, current_page=count)
@@ -107,7 +106,12 @@ def keywordsearch(diversity):
 
 @app.route('/aggregates')
 def aggregates():
-    diversities = ['Women Led', 'Unknown']
+    diversities = ['Women Led', 
+            'Unknown',
+             'Women Owned', 
+             'Black or African American Led', 
+             'LGBTQIA+', 
+             'Veterans' ]
     data=[]
     for diversity in diversities:
         filter_data = get_diversity_filtered_data(diversity)
