@@ -64,23 +64,69 @@ def get_diversity_categories():
 
 @app.route('/companies', methods=['GET', 'OPTIONS'])
 def get_companies():
-    output_data=[]
-    res=app_search.list_documents(engine_name=DEIWELLS_ENGINE, current_page=1)
-    output_data.extend(res['results'])
-    total_pages = res['meta']['page']['total_pages']
-    print(total_pages)
-    print(len(output_data))
-    count=2
-    while(count < total_pages):
-        res=app_search.list_documents(engine_name=DEIWELLS_ENGINE, current_page=count)
-        output_data.extend(res['results'])
-        count+=1
-    print(len(output_data))
-    return (jsonify(output_data)) 
+    return (jsonify(get_all_companides_from_db())) 
 
-@app.route('/keywordsearch')
-def keywordsearch():
-    user = requests.args.get('keyword')
+def get_all_companides_from_db():
+    output_data=[]
+    retry=1
+    while retry < 3:
+        try:
+            res=app_search.list_documents(engine_name=DEIWELLS_ENGINE, current_page=1)
+            output_data.extend(res['results'])
+            total_pages = res['meta']['page']['total_pages']
+            print(total_pages)
+            print(len(output_data))
+            count=2
+            while(count < total_pages):
+                res=app_search.list_documents(engine_name=DEIWELLS_ENGINE, current_page=count)
+                output_data.extend(res['results'])
+                count+=1
+            print(len(output_data))
+            break
+        except Exception as es:
+            print('Exception occured retring...')
+            retry+=1
+            time.sleep(2)
+            continue
+
+    return output_data
+    
+#TODO Not a good coode, find the filter API in app search
+def get_diversity_filtered_data(diversity):
+    filtered_result=[]
+    data=get_all_companides_from_db()
+    keyValList=[]
+    keyValList.append(diversity.lower())
+    filtered_result = [d for d in data if 'diversity' in d and d['diversity'].lower() in keyValList]
+    return filtered_result
+
+@app.route('/keywordsearch/<diversity>')
+def keywordsearch(diversity):
+    print(diversity)
+    return jsonify(get_diversity_filtered_data(diversity)) 
+
+@app.route('/aggregates')
+def aggregates():
+    diversities = ['Women Led', 'Unknown']
+    data=[]
+    for diversity in diversities:
+        filter_data = get_diversity_filtered_data(diversity)
+        data.append({diversity: len(filter_data)})
+    # for diversity in diversities:
+    #     print(diversity)
+    #     resp = app_search.search(
+    #     engine_name=DEIWELLS_ENGINE,
+    #     body={
+    #         "query": diversity,
+    #         "filters" : {
+    #         "diversity": diversity
+    #         }        
+    #     })
+    #     data.append({diversity: resp['meta']['page']['total_results']})
+    # print(data)
+    # data.append({'Women Led': 134})
+    # data.append({'Unknown': 424})
+    return jsonify(data)
 
 @app.route("/company/<name>")
 def company(name):
