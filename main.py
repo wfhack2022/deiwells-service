@@ -92,6 +92,10 @@ def get_all_companides_from_db():
     
 #TODO Not a good coode, find the filter API in app search
 def get_diversity_filtered_data(diversity):
+    idx = diversity.rfind('**')
+    if(idx > 0):
+        diversity = diversity[:idx]
+
     filtered_result=[]
     data=get_all_companides_from_db()
     keyValList=[]
@@ -108,10 +112,10 @@ def keywordsearch(diversity):
 def aggregates():
     diversities = ['Women Led', 
             'Unknown',
-             'Women Owned', 
-             'Black or African American Led', 
-             'LGBTQIA+', 
-             'Veterans' ]
+             'Women Owned**', 
+             'Black or African American Led**', 
+             'LGBTQIA+**', 
+             'Veterans**' ]
     data=[]
     for diversity in diversities:
         filter_data = get_diversity_filtered_data(diversity)

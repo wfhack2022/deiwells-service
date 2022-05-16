@@ -66,10 +66,10 @@ def start_diversity_search():
         bearer_auth=key
     )
     diversity_categories_keywords = {
-        'Women Owned': 'Women Owned',
-        'Black Led': 'Black or African American Led', 
-        'LGBTQIA+': 'LGBTQIA+',
-        'Veterans': 'Veterans',
+        'Women Owned': 'Women Owned**',
+        'Black Led': 'Black or African American Led**', 
+        'LGBTQIA+': 'LGBTQIA+**',
+        'Veterans': 'Veterans**',
     }
     for keyword, category in diversity_categories_keywords.items():
         start_elastic_search(keyword, category, ent_search)
